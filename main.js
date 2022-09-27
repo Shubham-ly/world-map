@@ -6,6 +6,43 @@ const zoomInButton = document.querySelector('#zoom-in')
 const zoomOutButton = document.querySelector('#zoom-out')
 const countries = document.querySelectorAll('#map-container path');
 
+const evCache = [];
+let prevDiff = -1;
+
+app.onpointerdown = pointerdownHandler;
+app.onpointermove = pointermoveHandler;
+app.onpointerup = pointerupHandler;
+app.onpointercancel = pointerupHandler;
+app.onpointerout = pointerupHandler;
+app.onpointerleave = pointerupHandler;
+
+function pointerdownHandler(ev) {
+  evCache.push(ev)
+}
+function pointermoveHandler(ev) {
+  const index = evCache.findIndex((cachedEv) => cachedEv.pointerId === ev.pointerId);
+  evCache[index] = ev;
+
+  if (evCache.length === 2) {
+    let curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
+
+    if (prevDiff > 0) {
+      if (curDiff > prevDiff) {
+        zoomIn()
+      }
+      if (curDiff < prevDiff) {
+        zoomOut()
+      }
+    }
+    prevDiff = curDiff;
+  }
+}
+function pointerupHandler(ev) {
+  if (evCache.length < 2) {
+    prevDiff = -1;
+  }
+}
+
 let scale = 1,
   isPanning = false,
   pivotX = 0,
@@ -79,14 +116,18 @@ app.addEventListener("wheel", (e) => {
   setTransform();
 });
 
-zoomInButton.addEventListener('click', _ => {
-  scale *= 1.4
+zoomInButton.addEventListener('click', _ => zoomIn())
+zoomInButton.addEventListener('touchstart', e => { e.stopPropagation(); zoomIn() })
+function zoomIn(factor = 1.4) {
+  scale *= factor
   setTransform(350)
-})
-zoomOutButton.addEventListener('click', _ => {
-  scale /= 1.4
+}
+zoomOutButton.addEventListener('click', _ => zoomOut())
+zoomOutButton.addEventListener('touchstart', e => { e.stopPropagation(); zoomOut() })
+function zoomOut(factor = 1.4) {
+  scale /= factor
   setTransform(350)
-})
+}
 
 function moveAndZoom(currentCountry) {
   scale = 1
@@ -102,12 +143,7 @@ function moveAndZoom(currentCountry) {
 countries.forEach(country => {
   country.addEventListener('click', e => {
     const currentCountry = e.currentTarget.getBoundingClientRect();
-    // e.currentTarget.style.stroke = 'rgba(255, 255, 255, 0.4)';
     moveAndZoom(currentCountry);
   })
-  country.addEventListener('touchstart', e => {
-    const currentCountry = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.stroke = 'rgba(255, 255, 255, 0.4)';
-    moveAndZoom(currentCountry)
-  })
+
 })
