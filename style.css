@@ -31,19 +31,11 @@ body {
   place-items: center;
   min-width: 100vw;
   min-height: 100vh;
-  background-color: white;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .logo {
@@ -77,9 +69,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -98,11 +88,15 @@ button:focus-visible {
   }
 }
 #app {
-  height: fit-content;
-  outline: 2px solid black;
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+  max-height: 80vh;
+  outline: 2px solid #252525;
   outline-offset: -2px;
   padding: 2em;
   overflow: hidden;
+  position: relative;
 }
 #map-container {
   cursor: move;
@@ -112,4 +106,30 @@ path {
 }
 path:hover {
   fill: rgba(0, 0, 145, 0.4);
+}
+
+.map-btn {
+  padding: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  height: 48px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  display: grid;
+  place-items: center;
+  transition: background-color 100ms ease-out;
+}
+.map-btn:hover {
+  background-color: rgba(0, 140, 255, 1);
+}
+.map-btn#zoom-in {
+  transform: translateY(-100%);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+.map-btn#zoom-out {
+  border-radius: 0;
 }
