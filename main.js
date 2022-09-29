@@ -17,30 +17,12 @@ app.onpointerout = pointerupHandler;
 app.onpointerleave = pointerupHandler;
 
 function pointerdownHandler(ev) {
-  evCache.push(ev)
 }
 function pointermoveHandler(ev) {
-  const index = evCache.findIndex((cachedEv) => cachedEv.pointerId === ev.pointerId);
-  evCache[index] = ev;
 
-  if (evCache.length === 2) {
-    let curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
-
-    if (prevDiff > 0) {
-      if (curDiff > prevDiff) {
-        zoomIn()
-      }
-      if (curDiff < prevDiff) {
-        zoomOut()
-      }
-    }
-    prevDiff = curDiff;
-  }
 }
 function pointerupHandler(ev) {
-  if (evCache.length < 2) {
-    prevDiff = -1;
-  }
+
 }
 
 let scale = 1,
@@ -52,13 +34,9 @@ let scale = 1,
 function setTransform(transitionDuration = null) {
   if (transitionDuration) {
     mapContainer.style.transition = `transform ease ${transitionDuration}ms`
-    mapContainer.style.transform = `translate(${pivotX}px, ${pivotY}px) scale(${scale})`;
-    setTimeout(() => {
-      mapContainer.style.transition = 'none'
-    }, transitionDuration + 1)
-    return
+  } else {
+    mapContainer.style.transition = 'none'
   }
-  mapContainer.style.transition = 'none'
   mapContainer.style.transform = `translate(${pivotX}px, ${pivotY}px) scale(${scale})`;
 }
 
@@ -128,22 +106,24 @@ function zoomOut(factor = 1.4) {
   scale /= factor
   setTransform(350)
 }
-
 function moveAndZoom(currentCountry) {
   scale = 1
   const mapDimensions = mapContainer.getBoundingClientRect()
   pivotX = (mapDimensions.x + mapDimensions.width / 2) - currentCountry.x - currentCountry.width / 2
   pivotY = (mapDimensions.y + mapDimensions.height / 2) - currentCountry.y - currentCountry.height / 2
-  if (currentCountry.width < 100)
-    scale = 4
-  else scale = 2
+  if (currentCountry.width < 50) scale = 2.8
+  else if (currentCountry.width < 140) scale = 1.6
+  else if (currentCountry.width < 200) scale = 1.2
+  else if (currentCountry.width < 300) scale = 1
+  else if (currentCountry.width < 500) scale = 0.6
+  // scale /= currentCountry.width * 0.01
   setTransform(350)
 }
 
 countries.forEach(country => {
-  country.addEventListener('click', e => {
+  country.addEventListener('pointerdown', e => {
+    e.stopPropagation()
     const currentCountry = e.currentTarget.getBoundingClientRect();
     moveAndZoom(currentCountry);
   })
-
 })
